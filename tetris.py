@@ -131,7 +131,7 @@ class Shape():
         self.SHAPE_WIDTH = len(shape) #矩阵的宽度
         self.SHAPE_HEIGHT = self.SHAPE_WIDTH #矩阵的
         self.currentShape = shape
-        self.pos=[0,random.randint(0,12)] #shape参考点在board上的位置
+        self.pos=[1,1] #random.randint(0,12)] #shape参考点在board上的位置
         self.lastPos = self.pos
         self.isDead = False #是否已‘死’，不能移动
         
@@ -189,11 +189,18 @@ class Board():
     def __init__(self,movingShape,nextShape):
         self.WIDTH=12
         self.HEIGHT = 20
-        self.body = [ [x*0 for x in range(self.WIDTH)] for y in range(self.HEIGHT)]
+        self.body = [[x*0 for x in range(self.WIDTH)] for y in range(self.HEIGHT)]
         self.movingShape = movingShape #正在下落的shape
         self.nextShape = nextShape
 
+    #def modifyBody(self):
+        
+
     def moveShapeToRight(self):
+
+        self.body = [[x*0 for x in range(self.WIDTH)] for y in range(self.HEIGHT)]
+
+
         '''
             将movingShape移动
         '''
@@ -202,21 +209,36 @@ class Board():
             position = self.movingShape.pos
             px = position[0]
             py = position[1]
+
+            shape = self.movingShape.getCurrentShape()
             
             if (px+1)>self.WIDTH-2:#不能超出右边界
                 return
             
-            for x in [px-1:px+1]:
-                for y in [py-1:py+1]:
-                    if position[x][y] == 1 and position[x+1][y] == 1:
+            for x in range(px-1,px+2):
+                for y in range(py-1,py+2):
+                    if self.body[x+1][y] == 1 and shape[x-px][y-py] == 1:
                         return
 
             #如果不重叠，则移动
-            for x in [px-1:px+1]:
-                for y in [py-1:py+1]:        
-                
+            position[1] += 1             
             
     def draw(self):
+        self.body = [[x*0 for x in range(self.WIDTH)] for y in range(self.HEIGHT)]
+        
+        #draw movingShape
+        position = self.movingShape.pos
+        px = position[0]
+        py = position[1]
+
+        shape = self.movingShape.getCurrentShape()
+
+        #对应位置draw shape
+        for x in range(px-1,px+2):
+            for y in range(py-1,py+2):
+                if shape[x-px][y-py] == 1:
+                    self.body[x][y] = 1  
+
         for i in range(len(self.body)):
             print self.body[i]
 
@@ -225,7 +247,7 @@ class Board():
 
     def clearBoard(self):
         pass
-        #self.body = [ [x*0 for x in range(self.WIDTH)] for y in range(self.HEIGHT)]
+        #self.body = [[x*0 for x in range(self.WIDTH)] for y in range(self.HEIGHT)]
 
     def appendShape(self,shape):
         self.moveShape=shape
@@ -238,16 +260,10 @@ class Board():
 
 def spawnShape():
     global SHAPES
-    return SHAPES[random.randint(0, 6)]
-
-def printShape(shape):
-    x = len(shape)
-    print '\n'
-    for i in range(x):
-        print shape[i]
-
+    return SHAPES[1]#random.randint(0, 6)]
 
 s1 = Shape(spawnShape())
+'''
 print 'before rotate:'
 s1.draw(None)
 
@@ -266,8 +282,12 @@ s1.draw(None)
 s1.rotate()
 print 'after 4th rotate:'
 s1.draw(None)
-
+'''
 s2 = Shape(spawnShape())
+print s2 
 
 b = Board(s1,s2)
+b.draw()
+print '-------------------------'
+b.moveShapeToRight()
 b.draw()
