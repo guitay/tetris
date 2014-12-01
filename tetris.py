@@ -5,11 +5,11 @@ import random
 #global variables
 SHAPES = (\
            ((0,1,0,0),\
-             (0,1,0,0),\
+            (0,1,0,0),\
             (0,1,0,0),\
             (0,1,0,0)),\
            ((0,1,0),\
-             (1,1,0),\
+            (1,1,0),\
             (0,1,0)\
             ),\
             ((1,1),\
@@ -124,61 +124,45 @@ class Tetris(object):
         pass
 
 class Shape():
-    # shape是画在一个矩阵上面的
-    # 因为我们有不同的模式，所以矩阵的信息也要详细给出
-    SHAPEW = 4    # 这个是矩阵的宽度
-    SHAPEH = 4    # 这个是高度
-    SHAPES = ()
     COLORS = ((0xcc, 0x66, 0x66), # 各个shape的颜色
         )
- 
-    def __init__(self, board_start, (board_width, board_height), (w, h)):
-        self.start = board_start
-        self.W, self.H = w, h           # board的横、纵的tile数
-        self.length = board_width / w   # 一个tille的长宽(正方形)
-        self.x, self.y = 0, 0     # shape的起始位置
-        self.index = 0          # 当前shape在SHAPES内的索引
-        self.indexN = 0         # 下一个shape在SHAPES内的索引
-        self.subindex = 0       # shape是在怎样的一个朝向
-        self.shapes = []        # 记录当前shape可能的朝向
-        self.color = ()
-        self.shape = None
-        # 这两个Surface用来存放当前、下一个shape的图像
-        self.image = pygame.Surface(
-                (self.length * self.SHAPEW, self.length * self.SHAPEH),
-                SRCALPHA, 32)
-        self.image_next = pygame.Surface(
-                (self.length * self.SHAPEW, self.length * self.SHAPEH),
-                SRCALPHA, 32)
-        self.board = []         # 外界信息
-        self.new()            # let's dance!
- 
-    def set_board(self, board):
-        # 接受外界状况的数组
-        pass
- 
-    def new(self):
-        # 新产生一个方块
-        # 注意这里其实是新产生“下一个”方块，而马上要落下的方块则
-        # 从上一个“下一个”方块那里获得
-        pass
+
+    def __init__(self,shape):
+        self.SHAPE_WIDTH = len(shape) #矩阵的宽度
+        self.SHAPE_HEIGHT = self.SHAPE_WIDTH #矩阵的
+        self.currentShape = shape
+        self.pos=[0,random.randint(0,12)] #shape参考点在board上的位置
+        self.lastPos = self.pos
+        self.isDead = False #是否已‘死’，不能移动
+        
  
     def rotate(self):
-        # 翻转
-        pass
+        '''
+            旋转
+        '''
+        tmpshape=[]
+        length =len(self.currentShape)
+        tmpshape=[[x*0 for x in range(length)] for x  in range(length)]
+        
+        for x1 in range(length):
+            for y1 in range(length):
+                x2 = length-y1-1
+                y2 = x1
+                tmpshape[x2][y2] = self.currentShape[x1][y1]
+        self.currentShape = tuple(tmpshape)
+
+    def getCurrentShape(self):
+        '''
+            取得当前shape
+        '''
+        return self.currentShape
  
-    def move(self, r, c):
-        # 左右下方向的移动
-        pass
- 
-    def check_legal(self, r=0, c=0):
-        # 用在上面的move判断中，“这样的移动”是否合法（如是否越界）
-        # 合法才会实际的动作
-        pass
- 
-    def at_bottom(self):
+    def isDead(self):
         # 是否已经不能再下降了
-        pass
+        return self.isDead
+
+    def setDead(self,state):
+        self.isDead=state
  
     def draw_current_shape(self):
         # 绘制当前shhape的图像
@@ -194,7 +178,63 @@ class Shape():
  
     def draw(self, screen):
         # 更新shape到屏幕上
+        x = len(self.currentShape)
+        print '\n'
+        for i in range(x):
+            print self.currentShape[i]
+
+
+class Board():
+    
+    def __init__(self,movingShape,nextShape):
+        self.WIDTH=12
+        self.HEIGHT = 20
+        self.body = [ [x*0 for x in range(self.WIDTH)] for y in range(self.HEIGHT)]
+        self.movingShape = movingShape #正在下落的shape
+        self.nextShape = nextShape
+
+    def moveShapeToRight(self):
+        '''
+            将movingShape移动
+        '''
+        length = len(self.movingShape.getCurrentShape())
+        if length ==3:
+            position = self.movingShape.pos
+            px = position[0]
+            py = position[1]
+            
+            if (px+1)>self.WIDTH-2:#不能超出右边界
+                return
+            
+            for x in [px-1:px+1]:
+                for y in [py-1:py+1]:
+                    if position[x][y] == 1 and position[x+1][y] == 1:
+                        return
+
+            #如果不重叠，则移动
+            for x in [px-1:px+1]:
+                for y in [py-1:py+1]:        
+                
+            
+    def draw(self):
+        for i in range(len(self.body)):
+            print self.body[i]
+
+    def getBody(self):
+        return self.body
+
+    def clearBoard(self):
         pass
+        #self.body = [ [x*0 for x in range(self.WIDTH)] for y in range(self.HEIGHT)]
+
+    def appendShape(self,shape):
+        self.moveShape=shape
+
+    def update(self):
+        x = self.movingShape.pos[0]
+        y = self.movingShape.pos[1]
+        
+
 
 def spawnShape():
     global SHAPES
@@ -205,11 +245,29 @@ def printShape(shape):
     print '\n'
     for i in range(x):
         print shape[i]
-            
-print printShape(spawnShape())
-print printShape(spawnShape())
-print printShape(spawnShape())
-print printShape(spawnShape())
-print printShape(spawnShape())
-print printShape(spawnShape())
-print printShape(spawnShape())
+
+
+s1 = Shape(spawnShape())
+print 'before rotate:'
+s1.draw(None)
+
+s1.rotate()
+print 'after 1st rotate:'
+s1.draw(None)
+
+s1.rotate()
+print 'after 2nd rotate:'
+s1.draw(None)
+
+s1.rotate()
+print 'after 3th rotate:'
+s1.draw(None)
+
+s1.rotate()
+print 'after 4th rotate:'
+s1.draw(None)
+
+s2 = Shape(spawnShape())
+
+b = Board(s1,s2)
+b.draw()
