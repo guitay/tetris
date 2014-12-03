@@ -1,7 +1,5 @@
 # -*- coding: cp936 -*-
-#from tetris import relationPos
-
-
+from tetris import SHAPES
 
 def relationPos(p1,pos):
     x=p1[0]
@@ -117,3 +115,4 @@ class Shape(object):
         for i in range(x):
             print self.currentShape[i]
 
+s1 = Shape(SHAPES[1][1])
